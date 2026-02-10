@@ -1,0 +1,102 @@
+---
+import { Image } from 'astro:assets';
+import BaseHead from '../../components/BaseHead.astro';
+import Footer from '../../components/Footer.astro';
+import FormattedDate from '../../components/FormattedDate.astro';
+import Header from '../../components/Header.astro';
+import { SITE_TITLE } from '../../consts';
+import { getAllCategories } from '../../lib/categories';
+import { getPostsByCategory } from '../../lib/posts';
+
+export async function getStaticPaths() {
+	const categories = await getAllCategories();
+	return categories.map((cat) => ({
+		params: { slug: cat.slug },
+		props: { slug: cat.slug, label: cat.label },
+	}));
+}
+
+const { slug, label } = Astro.props;
+const posts = await getPostsByCategory(slug);
+const pageTitle = `分类：${label}`;
+const title = `${pageTitle} | ${SITE_TITLE}`;
+---
+
+<!doctype html>
+<html lang="zh-CN">
+	<head>
+		<BaseHead title={title} description={`${pageTitle}下的文章列表`} />
+	</head>
+	<body>
+		<Header />
+		<main>
+			<h1>{pageTitle}</h1>
+			<ul class="post-list">
+				{posts.map((post) => (
+					<li>
+						<a href={`/blog/${post.id}/`}>
+							{post.data.heroImage && (
+								<Image width={400} height={200} src={post.data.heroImage} alt="" />
+							)}
+							<div class="meta">
+								<h2 class="title">{post.data.title}</h2>
+								<p class="date">
+									<FormattedDate date={post.data.pubDate} />
+								</p>
+							</div>
+						</a>
+					</li>
+				))}
+			</ul>
+			{posts.length === 0 && <p>该分类下暂无文章。</p>}
+		</main>
+		<Footer />
+	</body>
+</html>
+<style>
+	.post-list {
+		list-style: none;
+		padding: 0;
+		margin: 1em 0;
+		display: flex;
+		flex-direction: column;
+		gap: 1.5rem;
+	}
+	.post-list li a {
+		display: flex;
+		gap: 1rem;
+		align-items: flex-start;
+		text-decoration: none;
+		color: inherit;
+	}
+	.post-list img {
+		flex-shrink: 0;
+		width: 200px;
+		height: auto;
+		border-radius: 8px;
+	}
+	.post-list .meta {
+		min-width: 0;
+	}
+	.post-list .title {
+		margin: 0 0 0.25em 0;
+		font-size: 1.25em;
+		color: rgb(var(--black));
+	}
+	.post-list .date {
+		margin: 0;
+		color: rgb(var(--gray));
+		font-size: 0.9em;
+	}
+	.post-list a:hover .title {
+		color: var(--accent);
+	}
+	@media (max-width: 520px) {
+		.post-list li a {
+			flex-direction: column;
+		}
+		.post-list img {
+			width: 100%;
+		}
+	}
+</style>

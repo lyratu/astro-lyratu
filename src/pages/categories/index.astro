@@ -1,0 +1,50 @@
+---
+import BaseHead from '../../components/BaseHead.astro';
+import Footer from '../../components/Footer.astro';
+import Header from '../../components/Header.astro';
+import { SITE_DESCRIPTION, SITE_TITLE } from '../../consts';
+import { getAllCategories } from '../../lib/categories';
+
+const categories = await getAllCategories();
+const pageTitle = '分类';
+const title = `${pageTitle} | ${SITE_TITLE}`;
+---
+
+<!doctype html>
+<html lang="zh-CN">
+	<head>
+		<BaseHead title={title} description={SITE_DESCRIPTION} />
+	</head>
+	<body>
+		<Header />
+		<main>
+			<h1>{pageTitle}</h1>
+			<ul class="category-list">
+				{categories.map((cat) => (
+					<li>
+						<a href={`/categories/${cat.slug}/`}>{cat.label}</a>
+					</li>
+				))}
+			</ul>
+			{categories.length === 0 && <p>暂无分类。</p>}
+		</main>
+		<Footer />
+	</body>
+</html>
+<style>
+	.category-list {
+		list-style: none;
+		padding: 0;
+		margin: 1em 0;
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.5em 1em;
+	}
+	.category-list a {
+		text-decoration: none;
+		color: var(--accent);
+	}
+	.category-list a:hover {
+		text-decoration: underline;
+	}
+</style>

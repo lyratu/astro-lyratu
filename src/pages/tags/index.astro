@@ -1,0 +1,50 @@
+---
+import BaseHead from '../../components/BaseHead.astro';
+import Footer from '../../components/Footer.astro';
+import Header from '../../components/Header.astro';
+import { SITE_DESCRIPTION, SITE_TITLE } from '../../consts';
+import { getAllTags } from '../../lib/tags';
+
+const tags = await getAllTags();
+const pageTitle = '标签';
+const title = `${pageTitle} | ${SITE_TITLE}`;
+---
+
+<!doctype html>
+<html lang="zh-CN">
+	<head>
+		<BaseHead title={title} description={SITE_DESCRIPTION} />
+	</head>
+	<body>
+		<Header />
+		<main>
+			<h1>{pageTitle}</h1>
+			<ul class="tag-list">
+				{tags.map((tag) => (
+					<li>
+						<a href={`/tags/${encodeURIComponent(tag)}/`}>{tag}</a>
+					</li>
+				))}
+			</ul>
+			{tags.length === 0 && <p>暂无标签。</p>}
+		</main>
+		<Footer />
+	</body>
+</html>
+<style>
+	.tag-list {
+		list-style: none;
+		padding: 0;
+		margin: 1em 0;
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.5em 1em;
+	}
+	.tag-list a {
+		text-decoration: none;
+		color: var(--accent);
+	}
+	.tag-list a:hover {
+		text-decoration: underline;
+	}
+</style>
